@@ -3,12 +3,17 @@ import 'package:flutter_app/src/custome-widget/MyTag.dart';
 
 class MyImageButton extends StatelessWidget {
   MyImageButton(
-      {@required this.image, @required this.title, this.width, this.tip});
+      {@required this.image,
+      @required this.title,
+      this.width,
+      this.tip,
+      this.color});
 
   final Widget image;
   final String title;
   final double width;
   final String tip;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +33,8 @@ class MyImageButton extends StatelessWidget {
                 ),
                 Text(
                   title,
-                  style: TextStyle(fontSize: 12.0),
+                  style: TextStyle(
+                      fontSize: 14.0, color: color != null ? color : null),
                 ),
               ],
             ),

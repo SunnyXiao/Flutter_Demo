@@ -1,10 +1,9 @@
-import 'dart:developer';
-import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_app/src/route/city.dart';
 import 'package:flutter_app/src/custome-widget/ImageButton.dart';
+import 'package:flutter_app/src/custome-widget/SlideAnimationWidget.dart';
 
 class HomeWidget extends StatefulWidget {
   HomeWidget({@required this.screenWidth});
@@ -19,7 +18,7 @@ class _HomeWidgetState extends State<HomeWidget> {
 
   AppBar _buildHomeAppBar() {
     return AppBar(
-        elevation: 4,
+        elevation: 0.0,
         backgroundColor: Colors.teal,
         flexibleSpace: SafeArea(
           //可伸缩的空闲区域
@@ -139,44 +138,48 @@ class _HomeWidgetState extends State<HomeWidget> {
         ));
   }
 
-  Future<void> _refresh() async {}
-
   @override
   Widget build(BuildContext context) {
-    final bodyHeader = _initBodyHeader();
+    final bodyNav = _initNav();
     return Scaffold(
       appBar: _buildHomeAppBar(),
       body: Container(
+        color: Colors.black12,
         child: Column(
-          children: <Widget>[bodyHeader],
+          children: bodyNav,
         ),
-        // child: RefreshIndicator(
-        //     child: AnimatedList(itemBuilder: (context, index, animation) {
-        //       return bodys[index];
-        //     }),
-        //     onRefresh: () => Future.delayed(Duration(seconds: 2), _refresh)),
       ),
     );
   }
 
   //构建一行功能按钮
-  List<Widget> _buildTitle(
-      List<String> strs, List<String> urls, List<String> tips, double width) {
+  List<Widget> _buildTitle(List<String> strs, List<Map<String, dynamic>> urls,
+      List<String> tips, double width, Color color) {
     List<Widget> titleList = <Widget>[];
     for (int i = 0; i < strs.length; i++) {
-      titleList.add(Flexible(
-        flex: 1,
-        child: MyImageButton(
-          image: Icon(Icons.scanner),
-          // image: Image.asset(
-          //   urls[i],
-          //   width: width,
-          //   height: width,
-          // ),
-          title: strs[i],
-          tip: !tips[i].isNotEmpty ? tips[i] : null,
+      var imgData = urls[i];
+      var iconOrImage = imgData['type'] == 'Icon'
+          ? Icon(imgData['Icon'])
+          : Image.asset(
+              imgData['Icon'],
+              width: imgData['width'] == null ? width : imgData['width'],
+              height: imgData['height'] == null ? width : imgData['height'],
+              color: color != null ? color : null,
+            );
+      titleList.add(
+        Flexible(
+          flex: 1,
+          child: GestureDetector(
+            onTap: null,
+            child: MyImageButton(
+              image: iconOrImage,
+              title: strs[i],
+              tip: tips.isNotEmpty && tips[i].isNotEmpty ? tips[i] : null,
+              color: color != null ? color : null,
+            ),
+          ),
         ),
-      ));
+      );
     }
     return titleList;
   }
@@ -184,27 +187,132 @@ class _HomeWidgetState extends State<HomeWidget> {
   Widget _initBodyHeader() {
     final screenWidth = widget.screenWidth;
     const header = <String>['扫一扫', '付款码', '骑车', '乘公交'];
-    const headerUrl = <String>['Scanner', 'Scanner', 'Scanner', 'Scanner'];
+    List<Map<String, dynamic>> headerUrl = [
+      {
+        'Icon': 'images/scanning.png',
+        'type': 'Image',
+        'width': 30.0,
+        'height': 30.0
+      },
+      {
+        'Icon': 'images/barcode.webp',
+        'type': 'Image',
+        'width': 30.0,
+        'height': 30.0
+      },
+      {
+        'Icon': 'images/downhill-cycle.webp',
+        'type': 'Image',
+        'width': 30.0,
+        'height': 30.0
+      },
+      {'Icon': 'images/bus.png', 'type': 'Image', 'width': 30.0, 'height': 30.0}
+    ];
     return Container(
+      padding: EdgeInsets.only(bottom: 20.0),
+      color: Colors.teal,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: _buildTitle(header, headerUrl, [], screenWidth / 7),
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children:
+            _buildTitle(header, headerUrl, [], screenWidth / 7, Colors.white),
       ),
     );
   }
 
-  // List<Widget> _initBody() {
-  //   final screenWidth = widget.screenWidth;
-  //   const header = <String>['扫一扫', '付款码', '骑车', '乘公交'];
-  //   const headerUrl = <String>[];
-  //   return <Widget>[
-  //     Container(
-  //       child: Row(
-  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //         children: _buildTitle(header, headerUrl, [], screenWidth / 7),
-  //       ),
-  //     ),
-  //     Container()
-  //   ];
-  // }
+  List<Widget> _initNav() {
+    final screenWidth = widget.screenWidth;
+    const header = <String>['外卖', '美食', '酒店住所', '休闲/玩乐', '电影/演出'];
+    List<Map<String, dynamic>> headerUrl = [
+      {
+        'Icon': 'images/scanning.png',
+        'type': 'Image',
+        'width': 50.0,
+        'height': 50.0
+      },
+      {
+        'Icon': 'images/eat-circle-orange-512.webp',
+        'type': 'Image',
+        'width': 50.0,
+        'height': 50.0
+      },
+      {
+        'Icon': 'images/downhill-cycle.webp',
+        'type': 'Image',
+        'width': 50.0,
+        'height': 50.0
+      },
+      {
+        'Icon': 'images/bus.png',
+        'type': 'Image',
+        'width': 50.0,
+        'height': 50.0
+      },
+      {'Icon': 'images/bus.png', 'type': 'Image', 'width': 50.0, 'height': 50.0}
+    ];
+    const title2 = <String>[
+      "打车",
+      "丽人/美发",
+      "跑腿代购",
+      "借钱/信用卡",
+      "火车票/机票",
+    ];
+    List<Map<String, dynamic>> url2 = [
+      {
+        'type': 'Image',
+        'Icon': 'images/car.png',
+        'width': 26.0,
+        'height': 26.0
+      },
+      {
+        'type': 'Image',
+        'Icon': "images/beauty.png",
+        'width': 26.0,
+        'height': 26.0
+      },
+      {
+        'type': 'Image',
+        'Icon': "images/beauty.png",
+        'width': 26.0,
+        'height': 26.0
+      },
+      {
+        'type': 'Image',
+        'Icon': "images/beauty.png",
+        'width': 26.0,
+        'height': 26.0
+      },
+      {
+        'type': 'Image',
+        'Icon': "images/plane_takeoff.png",
+        'width': 26.0,
+        'height': 26.0
+      },
+    ];
+    return <Widget>[
+      _initBodyHeader(),
+      Container(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: _buildTitle(header, headerUrl, [], screenWidth / 7, null),
+        ),
+      ),
+      SizedBox(
+        height: 16.0,
+      ),
+      Container(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: _buildTitle(title2, url2, [], screenWidth / 7, null),
+        ),
+      ),
+      Container(
+        padding: const EdgeInsets.only(
+            left: 10.0, right: 10.0, top: 30.0, bottom: 0.0),
+        child: SlideAnimationWidget(
+          height: 180,
+        ),
+      ),
+    ];
+  }
 }
