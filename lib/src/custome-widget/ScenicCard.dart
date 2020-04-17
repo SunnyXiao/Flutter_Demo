@@ -7,14 +7,48 @@ typedef OnPressCallback = void Function(Widget selectedItem);
 Widget _buildImage(double width, double height, String url, double price, String name) {
   return Column(
     children: <Widget>[
-      ClipRRect(
-        borderRadius: BorderRadius.circular(8.0),
-        child: Image.network(
-          url,
-          fit: BoxFit.fitHeight,
-          width: width,
-          height: height,
-        ),
+      Stack(
+        alignment: AlignmentDirectional.bottomStart,
+        children: <Widget>[
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8.0),
+            child: Image.network(
+              url,
+              fit: BoxFit.fitHeight,
+              width: width,
+              height: height,
+            ),
+          ),
+          Container(
+            width: width,
+            child: Stack(
+              children: <Widget>[
+                Opacity(
+                  opacity: 0.6,
+                  child: Container(
+                    height: 30.0,
+                    decoration: BoxDecoration(
+                        borderRadius:
+                            BorderRadius.only(bottomLeft: Radius.circular(8.0), bottomRight: Radius.circular(8.0)),
+                        gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [Colors.white, Colors.black])),
+                    alignment: Alignment.center,
+                  ),
+                ),
+                Container(
+                  alignment: Alignment.center,
+                  height: 30.0,
+                  child: Text(
+                    '￥' + price.toString(),
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
       Padding(
         padding: EdgeInsets.only(top: 20.0),

@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'dart:async';
+import 'package:barcode_scan/barcode_scan.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_app/src/route/city.dart';
 import 'package:flutter_app/src/custome-widget/ImageButton.dart';
 import 'package:flutter_app/src/custome-widget/SlideAnimationWidget.dart';
@@ -18,6 +20,9 @@ class HomeWidget extends StatefulWidget {
 
 class _HomeWidgetState extends State<HomeWidget> {
   String curCity = '广州';
+  String barcode = "";
+  ScrollController _controller = new ScrollController();
+  List<ScenicCard> scenicCard = new List<ScenicCard>();
   // List<Widget> _list;
 
   AppBar _buildHomeAppBar() {
@@ -139,72 +144,11 @@ class _HomeWidgetState extends State<HomeWidget> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final bodyNav = _initNav();
-    return Scaffold(
-      appBar: _buildHomeAppBar(),
-      body: Container(
-        color: Colors.black12,
-        child: ListView(children: bodyNav),
-      ),
-    );
-  }
-
-  //构建一行功能按钮
-  List<Widget> _buildTitle(
-      List<String> strs, List<Map<String, dynamic>> urls, List<String> tips, double width, Color color) {
-    List<Widget> titleList = <Widget>[];
-    for (int i = 0; i < strs.length; i++) {
-      var imgData = urls[i];
-      var iconOrImage = imgData['type'] == 'Icon'
-          ? Icon(imgData['Icon'])
-          : Image.asset(
-              imgData['Icon'],
-              width: imgData['width'] == null ? width : imgData['width'],
-              height: imgData['height'] == null ? width : imgData['height'],
-              color: color != null ? color : null,
-            );
-      titleList.add(
-        Flexible(
-          flex: 1,
-          child: GestureDetector(
-            onTap: null,
-            child: MyImageButton(
-              image: iconOrImage,
-              title: strs[i],
-              tip: tips.isNotEmpty && tips[i].isNotEmpty ? tips[i] : null,
-              color: color != null ? color : null,
-            ),
-          ),
-        ),
-      );
-    }
-    return titleList;
-  }
-
-  Widget _initBodyHeader() {
-    final screenWidth = widget.screenWidth;
-    const header = <String>['扫一扫', '付款码', '骑车', '乘公交'];
-    List<Map<String, dynamic>> headerUrl = [
-      {'Icon': 'images/scanning.png', 'type': 'Image', 'width': 30.0, 'height': 30.0},
-      {'Icon': 'images/barcode.webp', 'type': 'Image', 'width': 30.0, 'height': 30.0},
-      {'Icon': 'images/downhill-cycle.webp', 'type': 'Image', 'width': 30.0, 'height': 30.0},
-      {'Icon': 'images/bus.png', 'type': 'Image', 'width': 30.0, 'height': 30.0}
-    ];
-    return Container(
-      padding: EdgeInsets.only(bottom: 20.0),
-      color: Colors.teal,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: _buildTitle(header, headerUrl, [], screenWidth / 7, Colors.white),
-      ),
-    );
-  }
-
-  //构建推荐卡片
-  Widget _buildCard1() {
-    return ScenicCard(
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _controller = ScrollController();
+    var data = ScenicCard(
         onDelete: null,
         discount: Discounts(['28减2', '39减4', '首单减14']),
         score: "4.8分",
@@ -231,11 +175,132 @@ class _HomeWidgetState extends State<HomeWidget> {
           '多肉茫茫',
           '烤焦鲜奶'
         ]);
+    setState(() {
+      scenicCard.add(data);
+      scenicCard.add(data);
+      scenicCard.add(data);
+      scenicCard.add(data);
+      scenicCard.add(data);
+      scenicCard.add(data);
+    });
   }
 
-  List<Widget> _initNav() {
+  Future<void> _refresh() async {
+    // setState(() {
+    //   scenicCard.clear();
+    // });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bodyNav = _initBody();
+    return Scaffold(
+      appBar: _buildHomeAppBar(),
+      body: Container(
+        color: Color.fromRGBO(240, 240, 240, 0.4),
+        child: RefreshIndicator(
+          onRefresh: () => Future.delayed(Duration(seconds: 2), _refresh),
+          child: new ListView.builder(
+            controller: _controller, //绑定滚动控制器，key等
+            itemCount: bodyNav.length + scenicCard.length,
+            itemBuilder: (context, index) {
+              if (index >= bodyNav.length) {
+                return scenicCard[index - bodyNav.length];
+              } else {
+                return bodyNav[index];
+              }
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  //构建一行功能按钮
+  List<Widget> _buildTitle(
+      List<Map<String, dynamic>> strs, List<Map<String, dynamic>> urls, List<String> tips, double width, Color color) {
+    List<Widget> titleList = <Widget>[];
+    for (int i = 0; i < strs.length; i++) {
+      var imgData = urls[i];
+      var iconOrImage = imgData['type'] == 'Icon'
+          ? Icon(imgData['Icon'])
+          : Image.asset(
+              imgData['Icon'],
+              width: imgData['width'] == null ? width : imgData['width'],
+              height: imgData['height'] == null ? width : imgData['height'],
+              color: color != null ? color : null,
+            );
+      titleList.add(
+        Flexible(
+          flex: 1,
+          child: GestureDetector(
+            onTap: strs[i]['fn'] == null ? null :  strs[i]['fn'],
+            child: MyImageButton(
+              image: iconOrImage,
+              title: strs[i]['text'],
+              tip: tips.isNotEmpty && tips[i].isNotEmpty ? tips[i] : null,
+              color: color != null ? color : null,
+            ),
+          ),
+        ),
+      );
+    }
+    return titleList;
+  }
+
+  Widget _initBodyHeader() {
     final screenWidth = widget.screenWidth;
-    const header = <String>['外卖', '美食', '酒店住所', '休闲/玩乐', '电影/演出'];
+    List<Map<String, dynamic>> header = [
+      {'text':'扫一扫','fn':scan}, 
+      {'text':'付款码','fn':null},
+      {'text':'骑车','fn':null},
+      {'text':'乘公交','fn':null}
+    ];
+    List<Map<String, dynamic>> headerUrl = [
+      {'Icon': 'images/scanning.png', 'type': 'Image', 'width': 30.0, 'height': 30.0},
+      {'Icon': 'images/barcode.webp', 'type': 'Image', 'width': 30.0, 'height': 30.0},
+      {'Icon': 'images/downhill-cycle.webp', 'type': 'Image', 'width': 30.0, 'height': 30.0},
+      {'Icon': 'images/bus.png', 'type': 'Image', 'width': 30.0, 'height': 30.0}
+    ];
+    return Container(
+      padding: EdgeInsets.only(bottom: 20.0),
+      color: Colors.teal,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: _buildTitle(header, headerUrl, [], screenWidth / 7, Colors.white),
+      ),
+    );
+  }
+
+  Future scan() async {
+    try {
+      String barcode = await BarcodeScanner.scan();
+      setState(() => this.barcode = barcode);
+    } on PlatformException catch (e) {
+      if (e.code == BarcodeScanner.CameraAccessDenied) {
+        setState(() {
+          this.barcode = 'The user did not grant the camera permission!';
+        });
+      } else {
+        setState(() => this.barcode = 'Unknown error: $e');
+      }
+    } on FormatException{
+      setState(() => this.barcode = 'null (User returned using the "back"-button before scanning anything. Result)');
+    } catch (e) {
+      setState(() => this.barcode = 'Unknown error: $e');
+    }
+  }
+
+  List<Widget> _initBody() {
+    final screenWidth = widget.screenWidth;
+    List<Map<String, dynamic>> header =[
+      {'text':'外卖','fn':null}, 
+      {'text':'美食','fn':null},
+      {'text':'酒店住所','fn':null},
+      {'text':'休闲/玩乐','fn':null},
+      {'text':'电影/演出','fn':null}
+    ];
     List<Map<String, dynamic>> headerUrl = [
       {'Icon': 'images/scanning.png', 'type': 'Image', 'width': 50.0, 'height': 50.0},
       {'Icon': 'images/eat-circle-orange-512.webp', 'type': 'Image', 'width': 50.0, 'height': 50.0},
@@ -243,12 +308,12 @@ class _HomeWidgetState extends State<HomeWidget> {
       {'Icon': 'images/bus.png', 'type': 'Image', 'width': 50.0, 'height': 50.0},
       {'Icon': 'images/bus.png', 'type': 'Image', 'width': 50.0, 'height': 50.0}
     ];
-    const title2 = <String>[
-      "打车",
-      "丽人/美发",
-      "跑腿代购",
-      "借钱/信用卡",
-      "火车票/机票",
+    List<Map<String, dynamic>> title2 = [
+      {'text':'打车','fn':null}, 
+      {'text':'丽人/美发','fn':null},
+      {'text':'跑腿代购','fn':null},
+      {'text':'借钱/信用卡','fn':null},
+      {'text':'火车票/机票','fn':null}
     ];
     List<Map<String, dynamic>> url2 = [
       {'type': 'Image', 'Icon': 'images/car.png', 'width': 26.0, 'height': 26.0},
@@ -280,8 +345,10 @@ class _HomeWidgetState extends State<HomeWidget> {
           height: 180,
         ),
       ),
-      Text('猜你喜欢'),
-      _buildCard1()
+      Container(
+        padding: EdgeInsets.only(top: 30.0, bottom: 14.0, left: 10.0, right: 10.0),
+        child: Text('猜你喜欢'),
+      ),
     ];
   }
 }
