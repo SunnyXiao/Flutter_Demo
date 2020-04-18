@@ -1,10 +1,23 @@
-import 'dart:developer';
-
+// import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_app/src/route/home.dart';
 import 'package:flutter_app/src/route/order.dart';
 import 'package:flutter_app/src/route/mine.dart';
+import 'package:flutter_app/utils/Screen.dart';
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: "flutter demo",
+      //theme: defaultTargetPlatform == TargetPlatform.iOS
+      // ? PlatformTheme.iOS
+      // : PlatformTheme.android, // 根据平台选择，可自定义主题
+      home: TabScaffold(),
+    );
+  }
+}
 
 class TabScaffold extends StatefulWidget {
   @override
@@ -22,7 +35,7 @@ class _TabScaffold extends State<TabScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenWidth = Screen.width(context);
     final bodys = [
       HomeWidget(screenWidth: screenWidth),
       OrderWidget(),

@@ -20,7 +20,6 @@ class MyApp extends StatelessWidget {
         const Locale('en'), // English
         const Locale('zh'), // Chinese
       ],
-      // theme: ThemeData(primarySwatch: Colors.transparent),
       home: TabScaffold(),
       // routes: {
       //   '/home': (context) => HomeWidget(),

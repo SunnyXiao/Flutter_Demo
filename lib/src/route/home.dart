@@ -1,8 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:barcode_scan/barcode_scan.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_app/src/route/homeMenu.dart';
 import 'package:flutter_app/src/route/city.dart';
 import 'package:flutter_app/src/custome-widget/ImageButton.dart';
 import 'package:flutter_app/src/custome-widget/SlideAnimationWidget.dart';
@@ -46,14 +45,16 @@ class _HomeWidgetState extends State<HomeWidget> {
                       size: 15.0,
                       color: Colors.white,
                     ),
-                    Text('26', style: TextStyle(color: Colors.white, fontSize: 14.0))
+                    Text('26',
+                        style: TextStyle(color: Colors.white, fontSize: 14.0))
                   ],
                 ),
               ),
               // 地点
               InkWell(
                 //水波纹特效
-                onTap: () => Navigator.of(context).push(CupertinoPageRoute(builder: (context) => CityWidget())),
+                onTap: () => Navigator.of(context).push(
+                    CupertinoPageRoute(builder: (context) => CityWidget())),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
@@ -62,7 +63,8 @@ class _HomeWidgetState extends State<HomeWidget> {
                       curCity,
                       style: TextStyle(color: Colors.white, fontSize: 14.0),
                     ),
-                    Icon(Icons.keyboard_arrow_down, color: Colors.white, size: 14.0),
+                    Icon(Icons.keyboard_arrow_down,
+                        color: Colors.white, size: 14.0),
                   ],
                 ),
               ),
@@ -87,7 +89,8 @@ class _HomeWidgetState extends State<HomeWidget> {
                             Icon(Icons.search, color: Colors.white, size: 20.0),
                             Text(
                               '暖暖下午茶，点个外卖',
-                              style: TextStyle(fontSize: 14.0, color: Colors.white),
+                              style: TextStyle(
+                                  fontSize: 14.0, color: Colors.white),
                             ),
                           ],
                         ),
@@ -98,44 +101,16 @@ class _HomeWidgetState extends State<HomeWidget> {
               ),
               Padding(
                 padding: EdgeInsets.all(8),
-                child: PopupMenuButton(
-                  //弹出菜单按钮
+                child: GestureDetector(
+                  onTap: () {
+                    _onTapMenu();
+                  },
                   child: Icon(
                     //按钮图标
                     Icons.add,
                     size: 26,
                     color: Colors.white,
                   ),
-                  itemBuilder: (context) => <PopupMenuEntry>[
-                        PopupMenuItem(
-                          child: Container(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Icon(Icons.image),
-                                SizedBox(
-                                  width: 20,
-                                ),
-                                Text("扫一扫"),
-                              ],
-                            ),
-                          ),
-                        ),
-                        PopupMenuItem(
-                          child: Container(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Icon(Icons.scanner),
-                                SizedBox(
-                                  width: 20,
-                                ),
-                                Text('付款码')
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
                 ),
               ),
             ],
@@ -216,9 +191,17 @@ class _HomeWidgetState extends State<HomeWidget> {
     );
   }
 
+  _onTapMenu() async {
+    HomeMenu.show(context);
+  }
+
   //构建一行功能按钮
   List<Widget> _buildTitle(
-      List<Map<String, dynamic>> strs, List<Map<String, dynamic>> urls, List<String> tips, double width, Color color) {
+      List<Map<String, dynamic>> strs,
+      List<Map<String, dynamic>> urls,
+      List<String> tips,
+      double width,
+      Color color) {
     List<Widget> titleList = <Widget>[];
     for (int i = 0; i < strs.length; i++) {
       var imgData = urls[i];
@@ -234,7 +217,7 @@ class _HomeWidgetState extends State<HomeWidget> {
         Flexible(
           flex: 1,
           child: GestureDetector(
-            onTap: strs[i]['fn'] == null ? null :  strs[i]['fn'],
+            onTap: strs[i]['fn'] == null ? null : strs[i]['fn'],
             child: MyImageButton(
               image: iconOrImage,
               title: strs[i]['text'],
@@ -251,15 +234,30 @@ class _HomeWidgetState extends State<HomeWidget> {
   Widget _initBodyHeader() {
     final screenWidth = widget.screenWidth;
     List<Map<String, dynamic>> header = [
-      {'text':'扫一扫','fn':scan}, 
-      {'text':'付款码','fn':null},
-      {'text':'骑车','fn':null},
-      {'text':'乘公交','fn':null}
+      {'text': '扫一扫', 'fn': null},
+      {'text': '付款码', 'fn': null},
+      {'text': '骑车', 'fn': null},
+      {'text': '乘公交', 'fn': null}
     ];
     List<Map<String, dynamic>> headerUrl = [
-      {'Icon': 'images/scanning.png', 'type': 'Image', 'width': 30.0, 'height': 30.0},
-      {'Icon': 'images/barcode.webp', 'type': 'Image', 'width': 30.0, 'height': 30.0},
-      {'Icon': 'images/downhill-cycle.webp', 'type': 'Image', 'width': 30.0, 'height': 30.0},
+      {
+        'Icon': 'images/scanning.png',
+        'type': 'Image',
+        'width': 30.0,
+        'height': 30.0
+      },
+      {
+        'Icon': 'images/barcode.webp',
+        'type': 'Image',
+        'width': 30.0,
+        'height': 30.0
+      },
+      {
+        'Icon': 'images/downhill-cycle.webp',
+        'type': 'Image',
+        'width': 30.0,
+        'height': 30.0
+      },
       {'Icon': 'images/bus.png', 'type': 'Image', 'width': 30.0, 'height': 30.0}
     ];
     return Container(
@@ -268,12 +266,13 @@ class _HomeWidgetState extends State<HomeWidget> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: _buildTitle(header, headerUrl, [], screenWidth / 7, Colors.white),
+        children:
+            _buildTitle(header, headerUrl, [], screenWidth / 7, Colors.white),
       ),
     );
   }
 
-  Future scan() async {
+  /* Future scan() async {
     try {
       String barcode = await BarcodeScanner.scan();
       setState(() => this.barcode = barcode);
@@ -285,42 +284,88 @@ class _HomeWidgetState extends State<HomeWidget> {
       } else {
         setState(() => this.barcode = 'Unknown error: $e');
       }
-    } on FormatException{
-      setState(() => this.barcode = 'null (User returned using the "back"-button before scanning anything. Result)');
+    } on FormatException {
+      setState(() => this.barcode =
+          'null (User returned using the "back"-button before scanning anything. Result)');
     } catch (e) {
       setState(() => this.barcode = 'Unknown error: $e');
     }
-  }
+  } */
 
   List<Widget> _initBody() {
     final screenWidth = widget.screenWidth;
-    List<Map<String, dynamic>> header =[
-      {'text':'外卖','fn':null}, 
-      {'text':'美食','fn':null},
-      {'text':'酒店住所','fn':null},
-      {'text':'休闲/玩乐','fn':null},
-      {'text':'电影/演出','fn':null}
+    List<Map<String, dynamic>> header = [
+      {'text': '外卖', 'fn': null},
+      {'text': '美食', 'fn': null},
+      {'text': '酒店住所', 'fn': null},
+      {'text': '休闲/玩乐', 'fn': null},
+      {'text': '电影/演出', 'fn': null}
     ];
     List<Map<String, dynamic>> headerUrl = [
-      {'Icon': 'images/scanning.png', 'type': 'Image', 'width': 50.0, 'height': 50.0},
-      {'Icon': 'images/eat-circle-orange-512.webp', 'type': 'Image', 'width': 50.0, 'height': 50.0},
-      {'Icon': 'images/downhill-cycle.webp', 'type': 'Image', 'width': 50.0, 'height': 50.0},
-      {'Icon': 'images/bus.png', 'type': 'Image', 'width': 50.0, 'height': 50.0},
+      {
+        'Icon': 'images/scanning.png',
+        'type': 'Image',
+        'width': 50.0,
+        'height': 50.0
+      },
+      {
+        'Icon': 'images/eat-circle-orange-512.webp',
+        'type': 'Image',
+        'width': 50.0,
+        'height': 50.0
+      },
+      {
+        'Icon': 'images/downhill-cycle.webp',
+        'type': 'Image',
+        'width': 50.0,
+        'height': 50.0
+      },
+      {
+        'Icon': 'images/bus.png',
+        'type': 'Image',
+        'width': 50.0,
+        'height': 50.0
+      },
       {'Icon': 'images/bus.png', 'type': 'Image', 'width': 50.0, 'height': 50.0}
     ];
     List<Map<String, dynamic>> title2 = [
-      {'text':'打车','fn':null}, 
-      {'text':'丽人/美发','fn':null},
-      {'text':'跑腿代购','fn':null},
-      {'text':'借钱/信用卡','fn':null},
-      {'text':'火车票/机票','fn':null}
+      {'text': '打车', 'fn': null},
+      {'text': '丽人/美发', 'fn': null},
+      {'text': '跑腿代购', 'fn': null},
+      {'text': '借钱/信用卡', 'fn': null},
+      {'text': '火车票/机票', 'fn': null}
     ];
     List<Map<String, dynamic>> url2 = [
-      {'type': 'Image', 'Icon': 'images/car.png', 'width': 26.0, 'height': 26.0},
-      {'type': 'Image', 'Icon': "images/beauty.png", 'width': 26.0, 'height': 26.0},
-      {'type': 'Image', 'Icon': "images/beauty.png", 'width': 26.0, 'height': 26.0},
-      {'type': 'Image', 'Icon': "images/beauty.png", 'width': 26.0, 'height': 26.0},
-      {'type': 'Image', 'Icon': "images/plane_takeoff.png", 'width': 26.0, 'height': 26.0},
+      {
+        'type': 'Image',
+        'Icon': 'images/car.png',
+        'width': 26.0,
+        'height': 26.0
+      },
+      {
+        'type': 'Image',
+        'Icon': "images/beauty.png",
+        'width': 26.0,
+        'height': 26.0
+      },
+      {
+        'type': 'Image',
+        'Icon': "images/beauty.png",
+        'width': 26.0,
+        'height': 26.0
+      },
+      {
+        'type': 'Image',
+        'Icon': "images/beauty.png",
+        'width': 26.0,
+        'height': 26.0
+      },
+      {
+        'type': 'Image',
+        'Icon': "images/plane_takeoff.png",
+        'width': 26.0,
+        'height': 26.0
+      },
     ];
     return <Widget>[
       _initBodyHeader(),
@@ -340,13 +385,15 @@ class _HomeWidgetState extends State<HomeWidget> {
         ),
       ),
       Container(
-        padding: const EdgeInsets.only(left: 10.0, right: 10.0, top: 30.0, bottom: 0.0),
+        padding: const EdgeInsets.only(
+            left: 10.0, right: 10.0, top: 30.0, bottom: 0.0),
         child: SlideAnimationWidget(
           height: 180,
         ),
       ),
       Container(
-        padding: EdgeInsets.only(top: 30.0, bottom: 14.0, left: 10.0, right: 10.0),
+        padding:
+            EdgeInsets.only(top: 30.0, bottom: 14.0, left: 10.0, right: 10.0),
         child: Text('猜你喜欢'),
       ),
     ];

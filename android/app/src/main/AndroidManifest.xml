@@ -13,8 +13,8 @@
 
         <!-- 权限许可 -->
         <uses-permission android:name="android.permission.CAMERA" />
-        <!-- 扫描二维码 -->
-        <activity android:name="com.apptreesoftware.barcodescan.BarcodeScannerActivity" />
+        <uses-permission android:name="android.permission.VIBRATE"/>
+
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
