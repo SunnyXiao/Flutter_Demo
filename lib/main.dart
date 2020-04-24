@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_app/src/tabScaffold.dart';
+import 'package:flutter_app/src/route/city.dart';
 
 void main() => runApp(MyApp());
 
@@ -21,11 +22,7 @@ class MyApp extends StatelessWidget {
         const Locale('zh'), // Chinese
       ],
       home: TabScaffold(),
-      // routes: {
-      //   '/home': (context) => HomeWidget(),
-      //   '/order': (context) => OrderWidget(),
-      //   '/mine': (context) => MineWidget()
-      // },
+      routes: {'/Citys': (context) => CityWidget()},
       // initialRoute: '/home',
     );
   }

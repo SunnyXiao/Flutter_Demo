@@ -2,19 +2,20 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter_app/src/route/homeMenu.dart';
-import 'package:flutter_app/src/route/city.dart';
 import 'package:flutter_app/src/custome-widget/ImageButton.dart';
 import 'package:flutter_app/src/custome-widget/SlideAnimationWidget.dart';
 import 'package:flutter_app/src/custome-widget/ScenicCard.dart';
 import 'package:flutter_app/src/custome-widget/MyTag.dart';
 import 'package:flutter_app/src/custome-widget/Discounts.dart';
 import 'package:flutter_app/src/custome-widget/HomeDeleteDialog.dart';
-import 'package:flutter_app/src/route/MyDrawer.Dart';
 
 class HomeWidget extends StatefulWidget {
-  HomeWidget({@required this.screenWidth});
+  HomeWidget({@required this.screenWidth, String city}) {
+    curCity = city;
+  }
 
   final double screenWidth;
+  String curCity;
   @override
   _HomeWidgetState createState() => _HomeWidgetState();
 }
@@ -54,7 +55,11 @@ class _HomeWidgetState extends State<HomeWidget> {
               // 地点
               InkWell(
                 //水波纹特效
-                onTap: () => Navigator.of(context).push(CupertinoPageRoute(builder: (context) => CityWidget())),
+                onTap: () {
+                  _jumpToCitysWidget();
+                  // Navigator.pushNamed(context, '/Citys');
+                },
+                // onTap: () => Navigator.of(context).push(CupertinoPageRoute(builder: (context) => CityWidget())),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
@@ -153,6 +158,11 @@ class _HomeWidgetState extends State<HomeWidget> {
       scenicCard.add(data);
       scenicCard.add(data);
     });
+  }
+
+  void _jumpToCitysWidget() async {
+    var selectCity = await Navigator.pushNamed(context, '/Citys', arguments: curCity);
+    if (selectCity == null) return;
   }
 
   Future<void> _refresh() async {
