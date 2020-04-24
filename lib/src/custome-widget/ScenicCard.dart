@@ -137,10 +137,10 @@ class ScenicCard extends StatelessWidget {
                         border: Border.all(color: Colors.grey, width: 1),
                       ),
                       child: GestureDetector(
-                        onTapDown: (TapDownDetails downDetails) => {
-                          _globlePositionX = downDetails.globalPosition.dx,
-                          _globlePositionY = downDetails.globalPosition.dy,
-                          onDelete(this, _globlePositionX, _globlePositionY),
+                        onTapDown: (TapDownDetails downDetails) {
+                          _globlePositionX = downDetails.globalPosition.dx;
+                          _globlePositionY = downDetails.globalPosition.dy;
+                          onDelete(this, _globlePositionX, _globlePositionY);
                         },
                         child: Icon(Icons.close, size: 10.0),
                       ),

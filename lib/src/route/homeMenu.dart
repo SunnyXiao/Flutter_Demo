@@ -58,11 +58,17 @@ class HomeMenuAlert extends StatelessWidget {
                 SizedBox(
                   height: 10,
                 ),
-                _buildAlertItem(Icons.image, "扫一扫", () => {_openMyPage(context)}),
+                _buildAlertItem(Icons.image, "扫一扫", () {
+                  _openMyPage(context);
+                }),
                 Divider(color: Colors.white70),
-                _buildAlertItem(Icons.scanner, "付款码", () => {_openMyPage(context)}),
+                _buildAlertItem(Icons.scanner, "付款码", () {
+                  _openMyPage(context);
+                }),
                 Divider(color: Colors.white70),
-                _buildAlertItem(Icons.scanner, "开发票", () => {_openMyPage(context)}),
+                _buildAlertItem(Icons.scanner, "开发票", () {
+                  _openMyPage(context);
+                }),
               ],
             ),
           ),
@@ -73,7 +79,9 @@ class HomeMenuAlert extends StatelessWidget {
 
   Widget _buildAlertItem(IconData iconData, String title, onTapCallBack onPressEvent) {
     return GestureDetector(
-      onTap: () => {onPressEvent()},
+      onTap: () {
+        onPressEvent();
+      },
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 4),
         child: Row(
