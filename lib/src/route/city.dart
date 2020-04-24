@@ -8,8 +8,8 @@ class CityWidget extends StatefulWidget {
 class _CityWidget extends State<CityWidget> {
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text('city page'),
+    return Scaffold(
+      body: Text('city page'),
     );
   }
 }

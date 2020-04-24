@@ -311,7 +311,7 @@ class _HomeWidgetState extends State<HomeWidget> {
   //推荐卡片中关闭对话框里的圆角边框按钮
   Widget _buildMyButton(String title) {
     return GestureDetector(
-      onTap: null,
+      onTap: () => {print('dd')},
       child: InkWell(
         child: Container(
           decoration: BoxDecoration(

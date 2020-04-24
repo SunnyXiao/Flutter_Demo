@@ -95,10 +95,65 @@ class HomeDeleteDialog extends StatelessWidget {
         child: dialogChild,
       );
 
-    return Dialog(
+    return MyDialog(
       backgroundColor: Colors.transparent,
       // elevation: elevation,
       child: dialogChild,
+    );
+  }
+}
+
+class MyDialog extends StatelessWidget {
+  const MyDialog({
+    Key key,
+    this.backgroundColor,
+    this.elevation,
+    this.insetAnimationDuration = const Duration(milliseconds: 100),
+    this.insetAnimationCurve = Curves.decelerate,
+    this.shape,
+    this.child,
+  }) : super(key: key);
+
+  final Color backgroundColor;
+  final double elevation;
+  final Duration insetAnimationDuration;
+  final Curve insetAnimationCurve;
+  final ShapeBorder shape;
+  final Widget child;
+
+  static const RoundedRectangleBorder _defaultDialogShape =
+      RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(2.0)));
+  static const double _defaultElevation = 24.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final DialogTheme dialogTheme = DialogTheme.of(context);
+    return AnimatedPadding(
+      padding: MediaQuery.of(context).viewInsets + const EdgeInsets.symmetric(horizontal: 40.0, vertical: 24.0),
+      duration: insetAnimationDuration,
+      curve: insetAnimationCurve,
+      child: MediaQuery.removeViewInsets(
+        removeLeft: true,
+        removeTop: true,
+        removeRight: true,
+        removeBottom: true,
+        context: context,
+        child: GestureDetector(
+          onTap: () => {
+            Navigator.pop(context),
+          },
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 280.0),
+            child: Material(
+              color: backgroundColor ?? dialogTheme.backgroundColor ?? Theme.of(context).dialogBackgroundColor,
+              elevation: elevation ?? dialogTheme.elevation ?? _defaultElevation,
+              shape: shape ?? dialogTheme.shape ?? _defaultDialogShape,
+              type: MaterialType.card,
+              child: child,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

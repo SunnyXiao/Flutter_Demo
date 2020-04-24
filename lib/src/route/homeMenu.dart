@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/src/route/animationDemo.dart';
+
+typedef onTapCallBack = void Function();
 
 class HomeMenu extends StatelessWidget {
   static show(BuildContext context) {
@@ -22,9 +25,7 @@ class HomeMenu extends StatelessWidget {
         },
         child: Stack(
           overflow: Overflow.visible,
-          children: <Widget>[
-            Positioned(right: 10, top: 100, child: HomeMenuAlert())
-          ],
+          children: <Widget>[Positioned(right: 10, top: 100, child: HomeMenuAlert())],
         ),
       ),
     );
@@ -33,6 +34,11 @@ class HomeMenu extends StatelessWidget {
 
 class HomeMenuAlert extends StatelessWidget {
   final double paddingDd = 4.0;
+
+  void _openMyPage(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => AnimatedWidgetsTest()));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -40,9 +46,7 @@ class HomeMenuAlert extends StatelessWidget {
         color: Colors.black87,
         clipBehavior: Clip.antiAlias,
         elevation: 0.0,
-        shape: ShapedBoarder(
-            borderRadius: BorderRadius.all(Radius.circular(paddingDd)),
-            padding: paddingDd),
+        shape: ShapedBoarder(borderRadius: BorderRadius.all(Radius.circular(paddingDd)), padding: paddingDd),
         child: Container(
           color: Colors.black87,
           padding: EdgeInsets.symmetric(horizontal: 10.0),
@@ -54,11 +58,11 @@ class HomeMenuAlert extends StatelessWidget {
                 SizedBox(
                   height: 10,
                 ),
-                _buildAlertItem(Icons.image, "扫一扫"),
+                _buildAlertItem(Icons.image, "扫一扫", () => {_openMyPage(context)}),
                 Divider(color: Colors.white70),
-                _buildAlertItem(Icons.scanner, "付款码"),
+                _buildAlertItem(Icons.scanner, "付款码", () => {_openMyPage(context)}),
                 Divider(color: Colors.white70),
-                _buildAlertItem(Icons.scanner, "开发票"),
+                _buildAlertItem(Icons.scanner, "开发票", () => {_openMyPage(context)}),
               ],
             ),
           ),
@@ -67,11 +71,9 @@ class HomeMenuAlert extends StatelessWidget {
     );
   }
 
-  Widget _buildAlertItem(IconData iconData, String title) {
+  Widget _buildAlertItem(IconData iconData, String title, onTapCallBack onPressEvent) {
     return GestureDetector(
-      onTap: () {
-        //selectedCallBack(title);
-      },
+      onTap: () => {onPressEvent()},
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 4),
         child: Row(
@@ -97,10 +99,7 @@ class HomeMenuAlert extends StatelessWidget {
 }
 
 class ShapedBoarder extends RoundedRectangleBorder {
-  ShapedBoarder(
-      {@required this.padding,
-      side = BorderSide.none,
-      borderRadius = BorderRadius.zero})
+  ShapedBoarder({@required this.padding, side = BorderSide.none, borderRadius = BorderRadius.zero})
       : super(side: side, borderRadius: borderRadius);
 
   final double padding;
@@ -113,8 +112,7 @@ class ShapedBoarder extends RoundedRectangleBorder {
       ..lineTo(rect.topRight.dx - 6, rect.top)
       ..addRRect(
         borderRadius.resolve(textDirection).toRRect(
-              Rect.fromLTWH(
-                  rect.left, rect.top, rect.width, rect.height - padding),
+              Rect.fromLTWH(rect.left, rect.top, rect.width, rect.height - padding),
             ),
       );
   }
