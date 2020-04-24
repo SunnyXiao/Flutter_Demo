@@ -8,6 +8,8 @@ import 'package:flutter_app/src/custome-widget/SlideAnimationWidget.dart';
 import 'package:flutter_app/src/custome-widget/ScenicCard.dart';
 import 'package:flutter_app/src/custome-widget/MyTag.dart';
 import 'package:flutter_app/src/custome-widget/Discounts.dart';
+import 'package:flutter_app/src/custome-widget/HomeDeleteDialog.dart';
+import 'package:flutter_app/src/route/MyDrawer.Dart';
 
 class HomeWidget extends StatefulWidget {
   HomeWidget({@required this.screenWidth});
@@ -45,16 +47,14 @@ class _HomeWidgetState extends State<HomeWidget> {
                       size: 15.0,
                       color: Colors.white,
                     ),
-                    Text('26',
-                        style: TextStyle(color: Colors.white, fontSize: 14.0))
+                    Text('26', style: TextStyle(color: Colors.white, fontSize: 14.0))
                   ],
                 ),
               ),
               // 地点
               InkWell(
                 //水波纹特效
-                onTap: () => Navigator.of(context).push(
-                    CupertinoPageRoute(builder: (context) => CityWidget())),
+                onTap: () => Navigator.of(context).push(CupertinoPageRoute(builder: (context) => CityWidget())),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
@@ -63,8 +63,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                       curCity,
                       style: TextStyle(color: Colors.white, fontSize: 14.0),
                     ),
-                    Icon(Icons.keyboard_arrow_down,
-                        color: Colors.white, size: 14.0),
+                    Icon(Icons.keyboard_arrow_down, color: Colors.white, size: 14.0),
                   ],
                 ),
               ),
@@ -89,8 +88,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                             Icon(Icons.search, color: Colors.white, size: 20.0),
                             Text(
                               '暖暖下午茶，点个外卖',
-                              style: TextStyle(
-                                  fontSize: 14.0, color: Colors.white),
+                              style: TextStyle(fontSize: 14.0, color: Colors.white),
                             ),
                           ],
                         ),
@@ -123,8 +121,9 @@ class _HomeWidgetState extends State<HomeWidget> {
     // TODO: implement initState
     super.initState();
     _controller = ScrollController();
+    _controller.addListener(() {});
     var data = ScenicCard(
-        onDelete: null,
+        onDelete: _showDeleteDialog,
         discount: Discounts(['28减2', '39减4', '首单减14']),
         score: "4.8分",
         address: " | 月售2884 | 配送￥5 | 人均￥30",
@@ -153,10 +152,6 @@ class _HomeWidgetState extends State<HomeWidget> {
     setState(() {
       scenicCard.add(data);
       scenicCard.add(data);
-      scenicCard.add(data);
-      scenicCard.add(data);
-      scenicCard.add(data);
-      scenicCard.add(data);
     });
   }
 
@@ -171,6 +166,7 @@ class _HomeWidgetState extends State<HomeWidget> {
     final bodyNav = _initBody();
     return Scaffold(
       appBar: _buildHomeAppBar(),
+      // drawer: new MyDrawer(),
       body: Container(
         color: Color.fromRGBO(240, 240, 240, 0.4),
         child: RefreshIndicator(
@@ -197,11 +193,7 @@ class _HomeWidgetState extends State<HomeWidget> {
 
   //构建一行功能按钮
   List<Widget> _buildTitle(
-      List<Map<String, dynamic>> strs,
-      List<Map<String, dynamic>> urls,
-      List<String> tips,
-      double width,
-      Color color) {
+      List<Map<String, dynamic>> strs, List<Map<String, dynamic>> urls, List<String> tips, double width, Color color) {
     List<Widget> titleList = <Widget>[];
     for (int i = 0; i < strs.length; i++) {
       var imgData = urls[i];
@@ -240,24 +232,9 @@ class _HomeWidgetState extends State<HomeWidget> {
       {'text': '乘公交', 'fn': null}
     ];
     List<Map<String, dynamic>> headerUrl = [
-      {
-        'Icon': 'images/scanning.png',
-        'type': 'Image',
-        'width': 30.0,
-        'height': 30.0
-      },
-      {
-        'Icon': 'images/barcode.webp',
-        'type': 'Image',
-        'width': 30.0,
-        'height': 30.0
-      },
-      {
-        'Icon': 'images/downhill-cycle.webp',
-        'type': 'Image',
-        'width': 30.0,
-        'height': 30.0
-      },
+      {'Icon': 'images/scanning.png', 'type': 'Image', 'width': 30.0, 'height': 30.0},
+      {'Icon': 'images/barcode.webp', 'type': 'Image', 'width': 30.0, 'height': 30.0},
+      {'Icon': 'images/downhill-cycle.webp', 'type': 'Image', 'width': 30.0, 'height': 30.0},
       {'Icon': 'images/bus.png', 'type': 'Image', 'width': 30.0, 'height': 30.0}
     ];
     return Container(
@@ -266,31 +243,10 @@ class _HomeWidgetState extends State<HomeWidget> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children:
-            _buildTitle(header, headerUrl, [], screenWidth / 7, Colors.white),
+        children: _buildTitle(header, headerUrl, [], screenWidth / 7, Colors.white),
       ),
     );
   }
-
-  /* Future scan() async {
-    try {
-      String barcode = await BarcodeScanner.scan();
-      setState(() => this.barcode = barcode);
-    } on PlatformException catch (e) {
-      if (e.code == BarcodeScanner.CameraAccessDenied) {
-        setState(() {
-          this.barcode = 'The user did not grant the camera permission!';
-        });
-      } else {
-        setState(() => this.barcode = 'Unknown error: $e');
-      }
-    } on FormatException {
-      setState(() => this.barcode =
-          'null (User returned using the "back"-button before scanning anything. Result)');
-    } catch (e) {
-      setState(() => this.barcode = 'Unknown error: $e');
-    }
-  } */
 
   List<Widget> _initBody() {
     final screenWidth = widget.screenWidth;
@@ -302,30 +258,10 @@ class _HomeWidgetState extends State<HomeWidget> {
       {'text': '电影/演出', 'fn': null}
     ];
     List<Map<String, dynamic>> headerUrl = [
-      {
-        'Icon': 'images/scanning.png',
-        'type': 'Image',
-        'width': 50.0,
-        'height': 50.0
-      },
-      {
-        'Icon': 'images/eat-circle-orange-512.webp',
-        'type': 'Image',
-        'width': 50.0,
-        'height': 50.0
-      },
-      {
-        'Icon': 'images/downhill-cycle.webp',
-        'type': 'Image',
-        'width': 50.0,
-        'height': 50.0
-      },
-      {
-        'Icon': 'images/bus.png',
-        'type': 'Image',
-        'width': 50.0,
-        'height': 50.0
-      },
+      {'Icon': 'images/scanning.png', 'type': 'Image', 'width': 50.0, 'height': 50.0},
+      {'Icon': 'images/eat-circle-orange-512.webp', 'type': 'Image', 'width': 50.0, 'height': 50.0},
+      {'Icon': 'images/downhill-cycle.webp', 'type': 'Image', 'width': 50.0, 'height': 50.0},
+      {'Icon': 'images/bus.png', 'type': 'Image', 'width': 50.0, 'height': 50.0},
       {'Icon': 'images/bus.png', 'type': 'Image', 'width': 50.0, 'height': 50.0}
     ];
     List<Map<String, dynamic>> title2 = [
@@ -336,36 +272,11 @@ class _HomeWidgetState extends State<HomeWidget> {
       {'text': '火车票/机票', 'fn': null}
     ];
     List<Map<String, dynamic>> url2 = [
-      {
-        'type': 'Image',
-        'Icon': 'images/car.png',
-        'width': 26.0,
-        'height': 26.0
-      },
-      {
-        'type': 'Image',
-        'Icon': "images/beauty.png",
-        'width': 26.0,
-        'height': 26.0
-      },
-      {
-        'type': 'Image',
-        'Icon': "images/beauty.png",
-        'width': 26.0,
-        'height': 26.0
-      },
-      {
-        'type': 'Image',
-        'Icon': "images/beauty.png",
-        'width': 26.0,
-        'height': 26.0
-      },
-      {
-        'type': 'Image',
-        'Icon': "images/plane_takeoff.png",
-        'width': 26.0,
-        'height': 26.0
-      },
+      {'type': 'Image', 'Icon': 'images/car.png', 'width': 26.0, 'height': 26.0},
+      {'type': 'Image', 'Icon': "images/beauty.png", 'width': 26.0, 'height': 26.0},
+      {'type': 'Image', 'Icon': "images/beauty.png", 'width': 26.0, 'height': 26.0},
+      {'type': 'Image', 'Icon': "images/beauty.png", 'width': 26.0, 'height': 26.0},
+      {'type': 'Image', 'Icon': "images/plane_takeoff.png", 'width': 26.0, 'height': 26.0},
     ];
     return <Widget>[
       _initBodyHeader(),
@@ -385,17 +296,101 @@ class _HomeWidgetState extends State<HomeWidget> {
         ),
       ),
       Container(
-        padding: const EdgeInsets.only(
-            left: 10.0, right: 10.0, top: 30.0, bottom: 0.0),
+        padding: const EdgeInsets.only(left: 10.0, right: 10.0, top: 30.0, bottom: 0.0),
         child: SlideAnimationWidget(
           height: 180,
         ),
       ),
       Container(
-        padding:
-            EdgeInsets.only(top: 30.0, bottom: 14.0, left: 10.0, right: 10.0),
+        padding: EdgeInsets.only(top: 30.0, bottom: 14.0, left: 10.0, right: 10.0),
         child: Text('猜你喜欢'),
       ),
     ];
+  }
+
+  //推荐卡片中关闭对话框里的圆角边框按钮
+  Widget _buildMyButton(String title) {
+    return GestureDetector(
+      onTap: null,
+      child: InkWell(
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.black, width: 0.5),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(5),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+            child: Center(
+              child: Text(
+                title,
+                style: TextStyle(fontSize: 12.0, color: Colors.black),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showDeleteDialog(Widget selectedItem, double dx, double dy) {
+    var dialog = HomeDeleteDialog(
+      dx: dx,
+      dy: dy,
+      titlePadding: EdgeInsets.only(top: 20),
+      title: Column(
+        children: <Widget>[
+          Text(
+            "选择具体理由，会减少相关推荐呦",
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(
+            height: 20.0,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              _buildMyButton("去过了"),
+              SizedBox(
+                width: 10,
+              ),
+              _buildMyButton("不感兴趣"),
+              SizedBox(
+                width: 10,
+              ),
+              _buildMyButton("价格不合适"),
+            ],
+          ),
+          SizedBox(
+            height: 15,
+          ),
+          GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Container(
+              height: 50,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: CupertinoColors.lightBackgroundGray,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(15),
+                  bottomRight: Radius.circular(15),
+                ),
+              ),
+              child: Text(
+                "不感兴趣",
+                style: TextStyle(fontSize: 12, color: Colors.teal),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) => dialog,
+    );
   }
 }

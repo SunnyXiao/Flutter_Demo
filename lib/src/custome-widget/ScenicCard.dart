@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_app/utils/Screen.dart';
 
-typedef OnPressCallback = void Function(Widget selectedItem);
+typedef OnPressCallback = void Function(Widget selectedItem, double posX, double posY);
 
-Widget _buildImage(
-    double width, double height, String url, double price, String name) {
+Widget _buildImage(double width, double height, String url, double price, String name) {
   return Column(
     children: <Widget>[
       Stack(
@@ -30,9 +29,8 @@ Widget _buildImage(
                   child: Container(
                     height: 30.0,
                     decoration: BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(8.0),
-                            bottomRight: Radius.circular(8.0)),
+                        borderRadius:
+                            BorderRadius.only(bottomLeft: Radius.circular(8.0), bottomRight: Radius.circular(8.0)),
                         gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
@@ -85,6 +83,9 @@ class ScenicCard extends StatelessWidget {
   final String arriveTime;
   final OnPressCallback onDelete;
 
+  double _globlePositionX = 0.0; //点击位置的横坐标
+  double _globlePositionY = 0.0; //点击位置的纵坐标
+
   @override
   Widget build(BuildContext context) {
     final imageWidth = (Screen.width(context) - 60.0) / 3.0;
@@ -110,23 +111,16 @@ class ScenicCard extends StatelessWidget {
                         children: <Widget>[
                           Padding(
                             padding: EdgeInsets.only(right: 12.0),
-                            child: Text(title,
-                                style: TextStyle(
-                                    fontSize: 16.0,
-                                    fontWeight: FontWeight.w600)),
+                            child: Text(title, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w600)),
                           ),
                           DecoratedBox(
-                            decoration: BoxDecoration(
-                                gradient: LinearGradient(colors: [
-                              Colors.orange[200],
-                              Colors.orange
-                            ])),
+                            decoration:
+                                BoxDecoration(gradient: LinearGradient(colors: [Colors.orange[200], Colors.orange])),
                             child: Padding(
                               padding: EdgeInsets.all(4),
                               child: Text(
                                 '外卖',
-                                style: TextStyle(
-                                    fontSize: 12.0, color: Colors.black),
+                                style: TextStyle(fontSize: 12.0, color: Colors.black),
                               ),
                             ),
                           ),
@@ -142,14 +136,22 @@ class ScenicCard extends StatelessWidget {
                         borderRadius: BorderRadius.all(Radius.circular(12.0)),
                         border: Border.all(color: Colors.grey, width: 1),
                       ),
-                      child: IconButton(
-                        padding: EdgeInsets.zero,
-                        onPressed: () => onDelete(this),
-                        icon: Icon(
-                          Icons.close,
-                          size: 10.0,
-                        ),
+                      child: GestureDetector(
+                        onTap: () => onDelete(this, _globlePositionX, _globlePositionY),
+                        onTapDown: (TapDownDetails downDetails) => {
+                          _globlePositionX = downDetails.globalPosition.dx,
+                          _globlePositionY = downDetails.globalPosition.dy,
+                        },
+                        child: Icon(Icons.close, size: 10.0),
                       ),
+                      // child: IconButton(
+                      //   padding: EdgeInsets.zero,
+                      //   onPressed: () => onDelete(this),
+                      //   icon: Icon(
+                      //     Icons.close,
+                      //     size: 10.0,
+                      //   ),
+                      // ),
                     )
                   ],
                 ),
@@ -164,12 +166,9 @@ class ScenicCard extends StatelessWidget {
                         children: <Widget>[
                           Text(
                             score,
-                            style:
-                                TextStyle(color: Colors.orange, fontSize: 12.0),
+                            style: TextStyle(color: Colors.orange, fontSize: 12.0),
                           ),
-                          Text(address,
-                              style: TextStyle(
-                                  color: Colors.black, fontSize: 12.0))
+                          Text(address, style: TextStyle(color: Colors.black, fontSize: 12.0))
                         ],
                       ),
                     ),
@@ -197,12 +196,9 @@ class ScenicCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    _buildImage(imageWidth, imageHeight, imageUrls[0],
-                        prices[0], names[0]),
-                    _buildImage(imageWidth, imageHeight, imageUrls[1],
-                        prices[1], names[1]),
-                    _buildImage(imageWidth, imageHeight, imageUrls[2],
-                        prices[2], names[2]),
+                    _buildImage(imageWidth, imageHeight, imageUrls[0], prices[0], names[0]),
+                    _buildImage(imageWidth, imageHeight, imageUrls[1], prices[1], names[1]),
+                    _buildImage(imageWidth, imageHeight, imageUrls[2], prices[2], names[2]),
                   ],
                 ),
               ],
