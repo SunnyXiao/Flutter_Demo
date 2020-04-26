@@ -1,13 +1,17 @@
+import 'dart:convert';
+import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'dart:async';
-import 'package:flutter_app/src/route/homeMenu.dart';
+import 'package:flutter_app/src/route/home/homeMenu.dart';
 import 'package:flutter_app/src/custome-widget/ImageButton.dart';
-import 'package:flutter_app/src/custome-widget/SlideAnimationWidget.dart';
+// import 'package:flutter_app/src/custome-widget/SlideAnimationWidget.dart';
 import 'package:flutter_app/src/custome-widget/ScenicCard.dart';
 import 'package:flutter_app/src/custome-widget/MyTag.dart';
 import 'package:flutter_app/src/custome-widget/Discounts.dart';
 import 'package:flutter_app/src/custome-widget/HomeDeleteDialog.dart';
+import 'package:flutter_app/src/route/home/homeBanner.dart';
+import 'package:flutter_app/src/models/banner_entity.dart';
+import 'package:flutter_app/src/api/home_api.service.dart';
 
 class HomeWidget extends StatefulWidget {
   HomeWidget({@required this.screenWidth, String city}) {
@@ -16,11 +20,13 @@ class HomeWidget extends StatefulWidget {
 
   final double screenWidth;
   String curCity;
+
   @override
   _HomeWidgetState createState() => _HomeWidgetState();
 }
 
 class _HomeWidgetState extends State<HomeWidget> {
+  BannerEntity _entity;
   String curCity = '广州';
   String barcode = "";
   ScrollController _controller = new ScrollController();
@@ -165,6 +171,18 @@ class _HomeWidgetState extends State<HomeWidget> {
     if (selectCity == null) return;
   }
 
+  Future<void> getBannerData() async {
+    try {
+      var response = await HomeApiService.getBannerData();
+      String jsonSrc = json.encode(response);
+      Map<String, dynamic> map = await json.decode(jsonSrc);
+      BannerEntity bannerEntity = BannerEntity.fromJson(map);
+      setState(() {
+        _entity = bannerEntity;
+      });
+    } catch (e) {}
+  }
+
   Future<void> _refresh() async {
     // setState(() {
     //   scenicCard.clear();
@@ -268,11 +286,11 @@ class _HomeWidgetState extends State<HomeWidget> {
       {'text': '电影/演出', 'fn': null}
     ];
     List<Map<String, dynamic>> headerUrl = [
-      {'Icon': 'images/scanning.png', 'type': 'Image', 'width': 50.0, 'height': 50.0},
-      {'Icon': 'images/eat-circle-orange-512.webp', 'type': 'Image', 'width': 50.0, 'height': 50.0},
-      {'Icon': 'images/downhill-cycle.webp', 'type': 'Image', 'width': 50.0, 'height': 50.0},
-      {'Icon': 'images/bus.png', 'type': 'Image', 'width': 50.0, 'height': 50.0},
-      {'Icon': 'images/bus.png', 'type': 'Image', 'width': 50.0, 'height': 50.0}
+      {'Icon': 'images/homepage_icon_light_takeout_b.png', 'type': 'Image', 'width': 50.0, 'height': 50.0},
+      {'Icon': 'images/homepage_icon_light_food_b.png', 'type': 'Image', 'width': 50.0, 'height': 50.0},
+      {'Icon': 'images/homepage_icon_light_hotel_b.png', 'type': 'Image', 'width': 50.0, 'height': 50.0},
+      {'Icon': 'images/homepage_icon_light_amusement_b.png', 'type': 'Image', 'width': 50.0, 'height': 50.0},
+      {'Icon': 'images/homepage_icon_light_movie_b.png', 'type': 'Image', 'width': 50.0, 'height': 50.0}
     ];
     List<Map<String, dynamic>> title2 = [
       {'text': '打车', 'fn': null},
@@ -283,7 +301,7 @@ class _HomeWidgetState extends State<HomeWidget> {
     ];
     List<Map<String, dynamic>> url2 = [
       {'type': 'Image', 'Icon': 'images/car.png', 'width': 26.0, 'height': 26.0},
-      {'type': 'Image', 'Icon': "images/beauty.png", 'width': 26.0, 'height': 26.0},
+      {'type': 'Image', 'Icon': "images/icon_homepage_beautyCategory.png", 'width': 26.0, 'height': 26.0},
       {'type': 'Image', 'Icon': "images/beauty.png", 'width': 26.0, 'height': 26.0},
       {'type': 'Image', 'Icon': "images/beauty.png", 'width': 26.0, 'height': 26.0},
       {'type': 'Image', 'Icon': "images/plane_takeoff.png", 'width': 26.0, 'height': 26.0},
@@ -307,9 +325,11 @@ class _HomeWidgetState extends State<HomeWidget> {
       ),
       Container(
         padding: const EdgeInsets.only(left: 10.0, right: 10.0, top: 30.0, bottom: 0.0),
-        child: SlideAnimationWidget(
-          height: 180,
-        ),
+        child: HomeBanner(entity: _entity),
+
+        // child: SlideAnimationWidget(
+        //   height: 180,
+        // ),
       ),
       Container(
         padding: EdgeInsets.only(top: 30.0, bottom: 14.0, left: 10.0, right: 10.0),

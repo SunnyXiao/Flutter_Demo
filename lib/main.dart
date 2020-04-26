@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_app/src/tabScaffold.dart';
-import 'package:flutter_app/src/route/city.dart';
+import 'package:flutter_app/src/route/city/city.dart';
 
 void main() => runApp(MyApp());
 
