@@ -11,7 +11,7 @@ import 'package:flutter_app/src/custome-widget/Discounts.dart';
 import 'package:flutter_app/src/custome-widget/HomeDeleteDialog.dart';
 import 'package:flutter_app/src/route/home/homeBanner.dart';
 import 'package:flutter_app/src/models/banner_entity.dart';
-import 'package:flutter_app/src/api/home_api.service.dart';
+import 'package:flutter_app/src/api/home_api_service.dart';
 
 class HomeWidget extends StatefulWidget {
   HomeWidget({@required this.screenWidth, String city}) {
