@@ -81,7 +81,9 @@ class _HomeWidgetState extends State<HomeWidget> {
               Expanded(
                 child: GestureDetector(
                   //GestureDetector捕获手势
-                  onTap: null,
+                  onTap: () {
+                    Navigator.pushNamed(context, '/Search');
+                  },
                   child: Container(
                     height: 42.0,
                     child: Card(
@@ -182,6 +184,8 @@ class _HomeWidgetState extends State<HomeWidget> {
         _entity = bannerEntity;
       });
     } on Exception catch (e) {
+      print(e);
+    } catch (e) {
       print(e);
     }
   }
