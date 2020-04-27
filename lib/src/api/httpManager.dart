@@ -5,6 +5,7 @@ import 'package:flutter_app/src/api/httpError.dart';
 import 'package:flutter_app/utils/logUtil.dart';
 
 /// 参考来源：https://github.com/Cheney2006/flutter_utils/blob/master/lib/http/http_manager.dart
+/// https://juejin.im/post/5e6dcfc7e51d45270411837d#heading-11
 ///http请求成功回调
 typedef HttpSuccessCallback<T> = void Function(dynamic data);
 
@@ -32,7 +33,7 @@ class HttpManager {
 
   Dio _client;
 
-  static final HttpManager _instance = HttpManager._internal();
+  static final HttpManager _instance = new HttpManager._internal();
 
   factory HttpManager() => _instance;
 
@@ -114,8 +115,9 @@ class HttpManager {
 
       Response<Map<String, dynamic>> response =
           await _client.request(url, data: data, queryParameters: params, options: options, cancelToken: cancelToken);
-      String statusCode = response.data["statusCode"];
-      if (statusCode == "0") {
+      String statusCodes = response.data["statusCode"];
+      int statusCode = response.statusCode;
+      if (statusCode == 200 || statusCodes == '0') {
         //成功
         if (successCallback != null) {
           successCallback(response.data["data"]);
@@ -125,7 +127,7 @@ class HttpManager {
         String message = response.data["statusDesc"];
         LogUtil.v("请求服务器出错：$message");
         if (errorCallback != null) {
-          errorCallback(HttpError(statusCode, message));
+          errorCallback(HttpError(statusCodes, message));
         }
       }
     } on DioError catch (e, s) {
@@ -138,6 +140,75 @@ class HttpManager {
       if (errorCallback != null) {
         errorCallback(HttpError(HttpError.UNKNOWN, "网络异常，请稍后重试！"));
       }
+    }
+  }
+
+  ///统一网络请求
+  ///
+  ///[url] 网络请求地址不包含域名
+  ///[data] post 请求参数
+  ///[params] url请求参数支持restful
+  ///[options] 请求配置
+  ///[tag] 请求统一标识，用于取消网络请求
+  Future<T> _requestAsync<T>({
+    @required String url,
+    String method,
+    data,
+    Map<String, dynamic> params,
+    Options options,
+    JsonParse<T> jsonParse,
+    @required String tag,
+  }) async {
+    //检查网络是否连接
+    ConnectivityResult connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      LogUtil.v("请求网络异常，请稍后重试！");
+      throw (HttpError(HttpError.NETWORK_ERROR, "网络异常，请稍后重试！"));
+    }
+
+    //设置默认值
+    params = params ?? {};
+    method = method ?? 'GET';
+
+    options?.method = method;
+
+    options = options ??
+        Options(
+          method: method,
+        );
+
+    url = _restfulUrl(url, params);
+
+    try {
+      CancelToken cancelToken;
+      if (tag != null) {
+        cancelToken = _cancelTokens[tag] == null ? CancelToken() : _cancelTokens[tag];
+        _cancelTokens[tag] = cancelToken;
+      }
+
+      Response<Map<String, dynamic>> response =
+          await _client.request(url, queryParameters: params, data: data, options: options, cancelToken: cancelToken);
+      String statusCode = response.data["statusCode"];
+      if (statusCode == "0" || response.statusCode == 200) {
+        //成功
+        if (jsonParse != null) {
+          return jsonParse(response.data["data"]);
+        } else {
+          return response.data["data"];
+        }
+      } else {
+        //失败
+        String message = response.data["statusDesc"];
+        LogUtil.v("请求服务器出错：$message");
+        //只能用 Future，外层有 try catch
+        return Future.error((HttpError(statusCode, message)));
+      }
+    } on DioError catch (e, s) {
+      LogUtil.v("请求出错：$e\n$s");
+      throw (HttpError.dioError(e));
+    } catch (e, s) {
+      LogUtil.v("未知异常出错：$e\n$s");
+      throw (HttpError(HttpError.UNKNOWN, "网络异常，请稍后重试！"));
     }
   }
 
@@ -192,6 +263,210 @@ class HttpManager {
       params: params,
       successCallback: successCallback,
       errorCallback: errorCallback,
+      tag: tag,
+    );
+  }
+
+  ///下载文件
+  ///
+  ///[url] 下载地址
+  ///[savePath]  文件保存路径
+  ///[onReceiveProgress]  文件保存路径
+  ///[data] post 请求参数
+  ///[params] url请求参数支持restful
+  ///[options] 请求配置
+  ///[successCallback] 请求成功回调
+  ///[errorCallback] 请求失败回调
+  ///[tag] 请求统一标识，用于取消网络请求
+  void download({
+    @required String url,
+    @required savePath,
+    ProgressCallback onReceiveProgress,
+    Map<String, dynamic> params,
+    data,
+    Options options,
+    HttpSuccessCallback successCallback,
+    HttpFailureCallback errorCallback,
+    @required String tag,
+  }) async {
+    //检查网络是否连接
+    ConnectivityResult connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      if (errorCallback != null) {
+        errorCallback(HttpError(HttpError.NETWORK_ERROR, "网络异常，请稍后重试！"));
+      }
+      LogUtil.v("请求网络异常，请稍后重试！");
+      return;
+    }
+
+    ////0代表不设置超时
+    int receiveTimeout = 0;
+    options ??=
+        options == null ? Options(receiveTimeout: receiveTimeout) : options.merge(receiveTimeout: receiveTimeout);
+
+    //设置默认值
+    params = params ?? {};
+
+    url = _restfulUrl(url, params);
+
+    try {
+      CancelToken cancelToken;
+      if (tag != null) {
+        cancelToken = _cancelTokens[tag] == null ? CancelToken() : _cancelTokens[tag];
+        _cancelTokens[tag] = cancelToken;
+      }
+
+      Response response = await _client.download(url, savePath,
+          onReceiveProgress: onReceiveProgress,
+          queryParameters: params,
+          data: data,
+          options: options,
+          cancelToken: cancelToken);
+      //成功
+      if (successCallback != null) {
+        successCallback(response.data);
+      }
+    } on DioError catch (e, s) {
+      LogUtil.v("请求出错：$e\n$s");
+      if (errorCallback != null && e.type != DioErrorType.CANCEL) {
+        errorCallback(HttpError.dioError(e));
+      }
+    } catch (e, s) {
+      LogUtil.v("未知异常出错：$e\n$s");
+      if (errorCallback != null) {
+        errorCallback(HttpError(HttpError.UNKNOWN, "网络异常，请稍后重试！"));
+      }
+    }
+  }
+
+  ///上传文件
+  ///
+  ///[url] 网络请求地址不包含域名
+  ///[data] post 请求参数
+  ///[onSendProgress] 上传进度
+  ///[params] url请求参数支持restful
+  ///[options] 请求配置
+  ///[successCallback] 请求成功回调
+  ///[errorCallback] 请求失败回调
+  ///[tag] 请求统一标识，用于取消网络请求
+  void upload({
+    @required String url,
+    FormData data,
+    ProgressCallback onSendProgress,
+    Map<String, dynamic> params,
+    Options options,
+    HttpSuccessCallback successCallback,
+    HttpFailureCallback errorCallback,
+    @required String tag,
+  }) async {
+    //检查网络是否连接
+    ConnectivityResult connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      if (errorCallback != null) {
+        errorCallback(HttpError(HttpError.NETWORK_ERROR, "网络异常，请稍后重试！"));
+      }
+      LogUtil.v("请求网络异常，请稍后重试！");
+      return;
+    }
+
+    //设置默认值
+    params = params ?? {};
+
+    //强制 POST 请求
+    options?.method = POST;
+
+    options = options ??
+        Options(
+          method: POST,
+        );
+
+    url = _restfulUrl(url, params);
+
+    try {
+      CancelToken cancelToken;
+      if (tag != null) {
+        cancelToken = _cancelTokens[tag] == null ? CancelToken() : _cancelTokens[tag];
+        _cancelTokens[tag] = cancelToken;
+      }
+
+      Response<Map<String, dynamic>> response = await _client.request(url,
+          onSendProgress: onSendProgress,
+          data: data,
+          queryParameters: params,
+          options: options,
+          cancelToken: cancelToken);
+      String statusCode = response.data["statusCode"];
+      if (statusCode == "0") {
+        //成功
+        if (successCallback != null) {
+          successCallback(response.data["data"]);
+        }
+      } else {
+        //失败
+        String message = response.data["statusDesc"];
+        LogUtil.v("请求服务器出错：$message");
+        if (errorCallback != null) {
+          errorCallback(HttpError(statusCode, message));
+        }
+      }
+    } on DioError catch (e, s) {
+      LogUtil.v("请求出错：$e\n$s");
+      if (errorCallback != null && e.type != DioErrorType.CANCEL) {
+        errorCallback(HttpError.dioError(e));
+      }
+    } catch (e, s) {
+      LogUtil.v("未知异常出错：$e\n$s");
+      if (errorCallback != null) {
+        errorCallback(HttpError(HttpError.UNKNOWN, "网络异常，请稍后重试！"));
+      }
+    }
+  }
+
+  ///GET异步网络请求
+  ///
+  ///[url] 网络请求地址不包含域名
+  ///[params] url请求参数支持restful
+  ///[options] 请求配置
+  ///[tag] 请求统一标识，用于取消网络请求
+  Future<T> getAsync<T>({
+    @required String url,
+    Map<String, dynamic> params,
+    Options options,
+    JsonParse<T> jsonParse,
+    @required String tag,
+  }) async {
+    return _requestAsync(
+      url: url,
+      method: GET,
+      params: params,
+      options: options,
+      jsonParse: jsonParse,
+      tag: tag,
+    );
+  }
+
+  ///POST 异步网络请求
+  ///
+  ///[url] 网络请求地址不包含域名
+  ///[data] post 请求参数
+  ///[params] url请求参数支持restful
+  ///[options] 请求配置
+  ///[tag] 请求统一标识，用于取消网络请求
+  Future<T> postAsync<T>({
+    @required String url,
+    data,
+    Map<String, dynamic> params,
+    Options options,
+    JsonParse<T> jsonParse,
+    @required String tag,
+  }) async {
+    return _requestAsync(
+      url: url,
+      method: POST,
+      data: data,
+      params: params,
+      options: options,
+      jsonParse: jsonParse,
       tag: tag,
     );
   }

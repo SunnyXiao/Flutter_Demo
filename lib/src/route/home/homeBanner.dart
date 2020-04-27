@@ -4,20 +4,16 @@ import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class HomeBanner extends StatefulWidget {
-  double bannerHeight;
-
-  BannerEntity entity;
-
   HomeBanner({Key key, this.bannerHeight = 180, this.entity}) : super(key: key);
 
+  final double bannerHeight;
+  final BannerEntity entity;
+
   @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return HomeBannerWidget();
-  }
+  _HomeBannerWidget createState() => _HomeBannerWidget();
 }
 
-class HomeBannerWidget extends State<HomeBanner> with AutomaticKeepAliveClientMixin {
+class _HomeBannerWidget extends State<HomeBanner> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);

@@ -31,7 +31,6 @@ class _HomeWidgetState extends State<HomeWidget> {
   String barcode = "";
   ScrollController _controller = new ScrollController();
   List<ScenicCard> scenicCard = new List<ScenicCard>();
-  // List<Widget> _list;
 
   AppBar _buildHomeAppBar() {
     return AppBar(
@@ -131,6 +130,7 @@ class _HomeWidgetState extends State<HomeWidget> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    getBannerData();
     _controller = ScrollController();
     _controller.addListener(() {});
     var data = ScenicCard(
@@ -175,12 +175,15 @@ class _HomeWidgetState extends State<HomeWidget> {
     try {
       var response = await HomeApiService.getBannerData();
       String jsonSrc = json.encode(response);
+      //var map = await json.decode(jsonSrc);
       Map<String, dynamic> map = await json.decode(jsonSrc);
       BannerEntity bannerEntity = BannerEntity.fromJson(map);
       setState(() {
         _entity = bannerEntity;
       });
-    } catch (e) {}
+    } on Exception catch (e) {
+      print(e);
+    }
   }
 
   Future<void> _refresh() async {
@@ -326,7 +329,6 @@ class _HomeWidgetState extends State<HomeWidget> {
       Container(
         padding: const EdgeInsets.only(left: 10.0, right: 10.0, top: 30.0, bottom: 0.0),
         child: HomeBanner(entity: _entity),
-
         // child: SlideAnimationWidget(
         //   height: 180,
         // ),
